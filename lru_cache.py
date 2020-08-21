@@ -2,7 +2,14 @@ import heapq
 '''
 This file contains the class representing an LRU cache. in order to achieve 
 O(log(size)) performance, we are using the python's implementation of a
-priority queue. 
+priority queue.
+A priority queue holds our entries, and this controls the order in which we
+remove the oldest items from the cache.
+A dict is holding a mapping between our entries in the queue and the name, this
+also gives us a place to store the value for retrieval by name.
+
+running this module as main will run a few operations on a small cache and
+print some output
 '''
 
 class LRUCach:
@@ -21,7 +28,7 @@ class LRUCach:
     the time complexity if this method is O(lon(n))
     '''
     should_pop = True
-    if name in self.entries:
+    if name in self.entries: # we are updating the touch time of this name
       # remove the entry from our cache
       entry = self.entries.pop(name)
       # mark the entry as null, when popping all entries marked for removal are
@@ -30,10 +37,12 @@ class LRUCach:
       # We are adding an existing entry, while the heap will grow by an extra
       # entry, we will keep the heap invariant
       should_pop = False
-    entry = [self.counter, name, value]
+    entry = [self.counter, name, value] # new entry with a bigger count for the 
+    # priority queue
+
     self.entries[name] = entry
     heapq.heappush(self.queue, entry)
-    if len(self.entries) > self.size and should_pop:
+    if len(self.entries) > self.size and should_pop:# if we have too many entries
       self.pop()
     self.counter += 1
 
@@ -59,6 +68,9 @@ class LRUCach:
     entry[-1] = self.marked_for_removal
 
   def pop(self):
+    '''
+    pops one active item from the cache along with unused entries
+      '''
     while self.queue:
       age, name, value = heapq.heappop(self.queue)
       if value is not self.marked_for_removal:
@@ -67,7 +79,9 @@ class LRUCach:
         return
 
 if __name__ == "__main__":
-  cache = LRUCach(3)
+
+  size = 3
+  cache = LRUCach(size)
 
   cache.add("name1", 3)
   print(cache.entries)
@@ -84,8 +98,6 @@ if __name__ == "__main__":
   cache.add("name1", 3)
   print(cache.entries)
   cache.add("name2", 3)
-
-
 
 # vim: set cindent sw=2 expandtab :
 
